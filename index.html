@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UrbanPulse — Microclimate Dynamics & Cascading Failure Simulator</title>
+  <meta name="description" content="An IoT-Driven Spatial Analytics Platform for Modeling Microclimate Dynamics and Cascading Infrastructure Failure Net-Effects.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="top-nav">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <h1 class="brand-title">UrbanPulse</h1>
+        <span class="brand-sub">Spatial Microclimate Dynamics &amp; Cascading Failure Digital Twin</span>
+      </div>
+    </div>
+
+    <!-- Center Controls: Scenario & Sim Speed -->
+    <div class="nav-center">
+      <div class="scenario-selector">
+        <label for="scenario-select" class="scenario-label">Scenario:</label>
+        <select id="scenario-select" class="select-custom">
+          <option value="DOWNTOWN_HEAT_ISLAND">1. Downtown Heat Trap (Vulnerable)</option>
+          <option value="DOMINO_CASCADE_CRITICAL">2. Critical Domino Cascade (Extreme)</option>
+          <option value="SUSTAINABLE_ECO_DISTRICT">3. Resilient Eco-District (Shielded)</option>
+          <option value="METROPOLIS_HARBOR">4. Industrial Waterfront (Maritime)</option>
+        </select>
+      </div>
+
+      <div class="sim-controls">
+        <button id="btn-play-pause" class="btn-ctrl" title="Play or pause physics simulation">⏸ Pause</button>
+        <button class="btn-ctrl speed-btn active" data-speed="1.0">1x</button>
+        <button class="btn-ctrl speed-btn" data-speed="2.0">2x</button>
+        <button class="btn-ctrl speed-btn" data-speed="5.0">5x</button>
+        <button id="btn-reset-breakers" class="btn-ctrl" title="Restore tripped breakers" style="color: #38bdf8;">⚡ Reset Grid</button>
+      </div>
+    </div>
+
+    <!-- Right Controls: Hardware Link & Audio -->
+    <div class="nav-right">
+      <div id="hardware-status-badge" class="status-pill virtual" title="IoT Weather Node Connection Status">
+        ○ Virtual IoT Sensor Mode
+      </div>
+      <button id="btn-connect-microbit" class="btn btn-secondary" title="Connect physical BBC micro:bit via Web Serial">
+        Connect Micro:bit
+      </button>
+      <button id="btn-formulas-guide" class="btn btn-secondary" title="View Mathematical Formulas & Cellular Automata Models">
+        📐 Formulas
+      </button>
+      <button id="btn-microbit-guide" class="btn btn-secondary" title="View micro:bit firmware and instructions">
+        📖 Guide
+      </button>
+      <button id="btn-sound-toggle" class="btn btn-secondary" title="Toggle audio alarms">
+        🔔 Audio On
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Column Application Layout -->
+  <main class="app-layout">
+
+    <!-- ==================================================================== -->
+    <!-- LEFT COLUMN: IoT Weather Node & Spatial Material Palette Brushes      -->
+    <!-- ==================================================================== -->
+    <aside class="layout-column left-column">
+
+      <!-- 1. IoT Environmental Weather Node (Micro:bit Link) -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title"><span class="icon">☀️</span> IoT Weather Node</h2>
+          <span id="hardware-status-details" style="font-size: 10px; color: var(--text-dim);">Simulated Lux</span>
+        </div>
+
+        <div class="iot-sensor-box">
+          <div class="iot-header-row">
+            <div>
+              <div class="prop-lbl">Micro:bit 5x5 LED Level</div>
+              <!-- 5x5 Virtual LED Matrix -->
+              <div class="iot-matrix-preview" id="microbit-matrix-preview">
+                <!-- Row 0 -->
+                <div class="microbit-led" data-row="0"></div><div class="microbit-led" data-row="0"></div><div class="microbit-led" data-row="0"></div><div class="microbit-led" data-row="0"></div><div class="microbit-led" data-row="0"></div>
+                <!-- Row 1 -->
+                <div class="microbit-led" data-row="1"></div><div class="microbit-led" data-row="1"></div><div class="microbit-led" data-row="1"></div><div class="microbit-led" data-row="1"></div><div class="microbit-led" data-row="1"></div>
+                <!-- Row 2 -->
+                <div class="microbit-led" data-row="2"></div><div class="microbit-led" data-row="2"></div><div class="microbit-led" data-row="2"></div><div class="microbit-led" data-row="2"></div><div class="microbit-led" data-row="2"></div>
+                <!-- Row 3 -->
+                <div class="microbit-led on" data-row="3"></div><div class="microbit-led on" data-row="3"></div><div class="microbit-led on" data-row="3"></div><div class="microbit-led on" data-row="3"></div><div class="microbit-led on" data-row="3"></div>
+                <!-- Row 4 -->
+                <div class="microbit-led on" data-row="4"></div><div class="microbit-led on" data-row="4"></div><div class="microbit-led on" data-row="4"></div><div class="microbit-led on" data-row="4"></div><div class="microbit-led on" data-row="4"></div>
+              </div>
+            </div>
+
+            <div class="iot-telemetry-val">
+              <div class="prop-lbl">Solar Irradiance</div>
+              <div id="microbit-lux-val" class="iot-flux-number">475 W/m²</div>
+              <div class="iot-sub-val">Raw Light: <span id="microbit-raw-light">110</span> / 255</div>
+              <div class="iot-sub-val" style="margin-top: 3px; color: #38bdf8;">Solar Shock (S): <span id="microbit-solar-shock-val" class="val-badge">+3.60°C</span></div>
+            </div>
+          </div>
+
+          <!-- Flashlight / Solar Radiation Slider -->
+          <div class="control-group">
+            <div class="control-label-row">
+              <span>Flashlight / Solar Intensity</span>
+              <span id="solar-val-label" class="val-badge">110 lux</span>
+            </div>
+            <input type="range" id="solar-slider" class="range-slider" min="0" max="255" value="110">
+          </div>
+
+          <!-- Flashlight Burst Shock Button -->
+          <button id="btn-flashlight-burst" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+            🔦 Simulate Flashlight Shock (Solar Spike)
+          </button>
+        </div>
+
+        <!-- Ambient & Atmospheric Controls -->
+        <div class="control-group">
+          <div class="control-label-row">
+            <span>Ambient Baseline Temp</span>
+            <span id="ambient-val-label" class="val-badge">30.0°C</span>
+          </div>
+          <input type="range" id="ambient-slider" class="range-slider" min="20.0" max="45.0" step="0.5" value="30.0">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="control-group" style="margin-bottom: 0;">
+            <div class="control-label-row">
+              <span>Wind Dir</span>
+            </div>
+            <select id="wind-dir-select" class="select-custom" style="width: 100%; padding: 4px 8px; font-size: 11px;">
+              <option value="E" selected>East (→)</option>
+              <option value="NE">N-East (↗)</option>
+              <option value="N">North (↑)</option>
+              <option value="NW">N-West (↖)</option>
+              <option value="W">West (←)</option>
+              <option value="SW">S-West (↙)</option>
+              <option value="S">South (↓)</option>
+              <option value="SE">S-East (↘)</option>
+              <option value="CALM">Calm (0)</option>
+            </select>
+          </div>
+
+          <div class="control-group" style="margin-bottom: 0;">
+            <div class="control-label-row">
+              <span>Wind Speed</span>
+              <span id="wind-speed-label" class="val-badge">2.0 m/s</span>
+            </div>
+            <input type="range" id="wind-speed-slider" class="range-slider" min="0" max="12" step="0.5" value="2.0">
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. Spatial Microclimate Palette Deck -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title"><span class="icon">🧱</span> Urban Infrastructure Palette</h2>
+          <span style="font-size: 10px; color: var(--text-dim);">Click or Drag to Paint</span>
+        </div>
+
+        <div class="palette-grid">
+          <!-- 1. Concrete Skyscraper -->
+          <button class="palette-btn" data-brush="CONCRETE_SKYSCRAPER">
+            <span class="brush-icon">🏙️</span>
+            <div class="brush-info">
+              <span class="brush-name">Skyscraper</span>
+              <span class="brush-sub">Albedo 0.15 | +8.5W</span>
+            </div>
+          </button>
+
+          <!-- 2. Asphalt Road -->
+          <button class="palette-btn" data-brush="ASPHALT_ROAD">
+            <span class="brush-icon">🛣️</span>
+            <div class="brush-info">
+              <span class="brush-name">Asphalt Road</span>
+              <span class="brush-sub">Albedo 0.05 | Absorbs 95%</span>
+            </div>
+          </button>
+
+          <!-- 3. Utility Hub -->
+          <button class="palette-btn" data-brush="UTILITY_HUB">
+            <span class="brush-icon">⚡</span>
+            <div class="brush-info">
+              <span class="brush-name">Utility Hub</span>
+              <span class="brush-sub">Trip: 48.5°C | Critical</span>
+            </div>
+          </button>
+
+          <!-- 4. Tree Canopy -->
+          <button class="palette-btn active" data-brush="TREE_CANOPY">
+            <span class="brush-icon">🌳</span>
+            <div class="brush-info">
+              <span class="brush-name">Tree Canopy</span>
+              <span class="brush-sub">Evapo -7.5W | Shade</span>
+            </div>
+          </button>
+
+          <!-- 5. Pocket Park -->
+          <button class="palette-btn" data-brush="POCKET_PARK">
+            <span class="brush-icon">🏞️</span>
+            <div class="brush-info">
+              <span class="brush-name">Pocket Park</span>
+              <span class="brush-sub">Radius 2.2 | Buffer</span>
+            </div>
+          </button>
+
+          <!-- 6. Water Body -->
+          <button class="palette-btn" data-brush="WATER_BODY">
+            <span class="brush-icon">💧</span>
+            <div class="brush-info">
+              <span class="brush-name">Water Body</span>
+              <span class="brush-sub">Thermal Sink | 240kJ</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3. Selected Cell Inspector Card -->
+      <section class="card inspector-card" id="cell-inspector">
+        <div class="inspect-header">
+          <div class="inspect-title">
+            <span id="inspect-icon">⚡</span>
+            <span id="inspect-name">Substation Alpha (High-Voltage)</span>
+          </div>
+          <span id="inspect-coord" class="inspect-coord-badge">(2, 2)</span>
+        </div>
+
+        <div class="inspect-temp-banner">
+          <div>
+            <div class="prop-lbl">Local Microclimate Temp</div>
+            <div id="inspect-temp" class="inspect-temp-big">35.4°C</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="prop-lbl">Net Heat Flux</div>
+            <div id="inspect-heat-flux" style="font-family: var(--font-mono); font-weight: 700; color: #fff;">+4.2 W/m²</div>
+          </div>
+        </div>
+
+        <div class="inspect-props-grid">
+          <div class="inspect-prop-box">
+            <div class="prop-lbl">Solar Albedo</div>
+            <div id="inspect-albedo" class="prop-val">0.20</div>
+          </div>
+          <div class="inspect-prop-box">
+            <div class="prop-lbl">Thermal Inertia</div>
+            <div id="inspect-thermal-mass" class="prop-val">55.0 kJ</div>
+          </div>
+          <div class="inspect-prop-box">
+            <div class="prop-lbl">Cooling Buffer</div>
+            <div id="inspect-cooling-offset" class="prop-val">-0.0°C</div>
+          </div>
+          <div class="inspect-prop-box">
+            <div class="prop-lbl">Downstream Risk</div>
+            <div class="prop-val" style="color: #f59e0b;">High</div>
+          </div>
+        </div>
+
+        <div id="inspect-desc" style="color: var(--text-muted); font-size: 11px; margin-bottom: 6px;">
+          Critical utility node with thermal trip thresholds and interconnected domino dependencies.
+        </div>
+
+        <div id="inspect-utility-status" class="inspect-utility-status">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <strong id="inspect-util-name">Substation Alpha</strong>
+            <span id="inspect-util-badge" class="badge-nominal">NOMINAL</span>
+          </div>
+          <div style="font-size: 10px; color: var(--text-dim); margin-bottom: 4px;">
+            Max Safe Trip Limit: <strong id="inspect-util-safe-limit">48.5°C</strong> | If breached, cascades to Water Pump North and Hospital Central.
+          </div>
+          <div style="font-size: 10px; display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 4px;">
+            <span style="color: var(--text-dim);">Operating Power Load:</span>
+            <strong id="inspect-util-load" style="font-family: var(--font-mono); color: #38bdf8;">120.0 MW</strong>
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+    <!-- ==================================================================== -->
+    <!-- CENTER COLUMN: Interactive Canvas & Dual-Overlay Visualizer Toggle   -->
+    <!-- ==================================================================== -->
+    <section class="layout-column center-column">
+
+      <!-- Dual-Overlay Visualizer Switcher Bar -->
+      <div class="view-mode-bar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 14px;">🎛️</span>
+          <span style="font-size: 12px; font-weight: 700; color: #fff; text-transform: uppercase; letter-spacing: 0.5px;">Visualizer Overlay:</span>
+        </div>
+        <div class="view-toggles">
+          <button class="view-toggle-btn active" data-view="HYBRID" title="Combined Thermal Gradient and Network Vector Lines">
+            ⚡ Dual-Overlay (Hybrid)
+          </button>
+          <button class="view-toggle-btn" data-view="HEATMAP" title="Continuous Thermodynamic Heatmap">
+            🌡️ Thermal Heatmap
+          </button>
+          <button class="view-toggle-btn" data-view="NETWORK" title="Infrastructure Utility Dependency Graph">
+            🔌 Network Graph
+          </button>
+          <button class="view-toggle-btn" data-view="LAND_COVER" title="Architectural Land Cover Matrix">
+            🗺️ Land Cover
+          </button>
+        </div>
+        <button id="btn-reset-grid" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;" title="Reset 8x8 block">
+          ↺ Reset Block
+        </button>
+      </div>
+
+      <!-- Canvas Rendering Card -->
+      <div class="canvas-container-card">
+        <canvas id="grid-canvas" width="560" height="560"></canvas>
+
+        <!-- Canvas Bottom Legend Bar -->
+        <div class="canvas-legend-bar">
+          <div class="thermal-colorbar-container">
+            <span>22°C</span>
+            <div class="thermal-gradient-bar" title="Thermal Gradient Colormap"></div>
+            <span>65°C+</span>
+          </div>
+
+          <div class="network-legend">
+            <div class="legend-item">
+              <span class="legend-dot active"></span>
+              <span>Nominal Flow</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot strained"></span>
+              <span>Thermal Strain</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot failed"></span>
+              <span>Cascade Trip</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ==================================================================== -->
+    <!-- RIGHT COLUMN: Analytical Telemetry Suite & AI Strategic Solver        -->
+    <!-- ==================================================================== -->
+    <aside class="layout-column right-column">
+
+      <!-- 1. Analytical Telemetry KPI Metrics -->
+      <section class="card">
+        <div class="card-header">
+          <h2 class="card-title"><span class="icon">📊</span> Telemetry Suite</h2>
+          <button id="btn-export-report" class="btn btn-secondary" style="font-size: 10px; padding: 3px 8px;">
+            Export Report
+          </button>
+        </div>
+
+        <div class="kpi-grid">
+          <!-- Peak Temperature -->
+          <div class="kpi-box">
+            <span class="kpi-label">Peak Temperature</span>
+            <div class="kpi-val-row">
+              <span id="kpi-peak-temp" class="kpi-value" style="color: #f87171;">36.2°C</span>
+              <span id="peak-temp-badge" class="kpi-badge badge-nominal">NOMINAL</span>
+            </div>
+          </div>
+
+          <!-- Average Grid Temp -->
+          <div class="kpi-box">
+            <span class="kpi-label">Average Microclimate</span>
+            <div class="kpi-val-row">
+              <span id="kpi-avg-temp" class="kpi-value">31.4°C</span>
+              <span style="font-size: 10px; color: var(--text-dim);">8x8 Area</span>
+            </div>
+          </div>
+
+          <!-- Grid Resilience Score -->
+          <div class="kpi-box">
+            <span class="kpi-label">Grid Health Index</span>
+            <div class="kpi-val-row">
+              <span id="kpi-resilience-val" class="kpi-value" style="color: #4ade80;">100%</span>
+            </div>
+            <div class="progress-container">
+              <div id="kpi-resilience-bar" class="progress-fill" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- Active Downtime Loss Ticker -->
+          <div class="kpi-box">
+            <span class="kpi-label">Accrued Downtime Cost</span>
+            <div class="kpi-val-row">
+              <span id="kpi-downtime-cost" class="kpi-value" style="color: #38bdf8;">$0</span>
+            </div>
+            <span id="kpi-burn-rate" style="font-size: 10px; color: var(--text-dim); margin-top: 2px;">Active Loss: $0 / min</span>
+          </div>
+        </div>
+
+        <!-- Rolling 60s Sparkline Chart -->
+        <div class="prop-lbl" style="margin-bottom: 4px; display: flex; justify-content: space-between;">
+          <span>60-Second Real-Time Temperature History</span>
+          <span><span style="color: #f56565;">— Peak</span> &nbsp; <span style="color: #38b2ac;">— Avg</span></span>
+        </div>
+        <div class="sparkline-container">
+          <canvas id="sparkline-canvas"></canvas>
+        </div>
+
+        <!-- Chronological Failure & Event Stream -->
+        <div class="log-filter-row">
+          <span style="font-size: 11px; font-weight: 700; color: #fff; margin-right: 6px;">Event Stream:</span>
+          <button class="log-filter-tab active" data-filter="ALL">All</button>
+          <button class="log-filter-tab" data-filter="FAILURES">Failures</button>
+          <button class="log-filter-tab" data-filter="WARNINGS">Warnings</button>
+        </div>
+
+        <div id="failure-log-list" class="log-stream-box">
+          <div class="empty-log-state">
+            <div class="empty-icon">✓</div>
+            <div>No failure events recorded. All utility nodes operating below threshold limits.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. AI Strategic Optimization Solver -->
+      <section class="card ai-panel">
+        <div class="card-header">
+          <h2 class="card-title" style="color: #34d399;"><span class="icon">🤖</span> AI Strategic Optimizer</h2>
+          <span style="font-size: 10px; color: #6ee7b7;">Max-ROI Solver</span>
+        </div>
+
+        <p style="font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px;">
+          Evaluates spatial thermal gradients and downstream utility dependencies to compute the highest-ROI green canopy placements that neutralize cascading blackout risks.
+        </p>
+
+        <button id="btn-run-ai-optimizer" class="btn btn-primary" style="width: 100%; background: linear-gradient(135deg, #059669, #0d9488);">
+          ⚡ Run AI Strategic Optimization
+        </button>
+
+        <div id="ai-recommendations-list" class="ai-recommendations-list">
+          <div style="text-align: center; padding: 18px 10px; font-size: 11px; color: var(--text-dim);">
+            Click <strong>"Run AI Strategic Optimization"</strong> to evaluate the grid and calculate optimal mitigation points.
+          </div>
+        </div>
+      </section>
+
+    </aside>
+
+  </main>
+
+  <!-- Modal: BBC micro:bit Hardware Connection Guide & MicroPython Firmware -->
+  <div id="modal-microbit-guide" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <span>📟</span> BBC micro:bit IoT Node Integration Guide
+        </h3>
+        <button id="btn-close-guide" class="btn btn-secondary" style="padding: 4px 10px;">✕ Close</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px;">
+        UrbanPulse connects to a physical <strong>BBC micro:bit (V1 or V2)</strong> over USB using the <strong>Web Serial API</strong>.
+        The micro:bit uses its 5x5 LED matrix as an ambient light sensor. Shining a smartphone flashlight or desk lamp on the micro:bit injects an immediate environmental heat shock into the spatial simulation!
+      </p>
+
+      <h4 style="font-size: 14px; color: #38bdf8; margin-top: 14px; margin-bottom: 6px;">Step 1: Flash Firmware onto your micro:bit</h4>
+      <ol style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-left: 20px; margin-bottom: 12px;">
+        <li>Connect your BBC micro:bit to your computer via USB.</li>
+        <li>Open the official Web Python editor: <a href="https://python.microbit.org/" target="_blank" style="color: #38bdf8;">python.microbit.org</a> (in Chrome or Edge).</li>
+        <li>Copy the MicroPython code below and paste it into the editor.</li>
+        <li>Click <strong>Send to micro:bit</strong> (or download the <code>.hex</code> and drag it into the MICROBIT drive).</li>
+      </ol>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 12px; font-weight: 700; color: #fff;">MicroPython Firmware (microbit_firmware.py):</span>
+        <button id="btn-copy-firmware" class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px;">
+          Copy MicroPython Code
+        </button>
+      </div>
+
+      <pre id="firmware-code-block" class="code-container">from microbit import *
+import utime
+
+uart.init(baudrate=115200)
+display.show(Image.SUNNY)
+utime.sleep_ms(1000)
+
+while True:
+    light = display.read_light_level()
+    temp = temperature()
+    
+    display.clear()
+    bars = int((light / 255.0) * 5)
+    for y in range(4, 4 - bars, -1):
+        for x in range(5):
+            display.set_pixel(x, y, 9)
+
+    telemetry = '{"light":' + str(light) + ',"temp":' + str(temp) + '}\n'
+    uart.write(telemetry)
+    utime.sleep_ms(150)</pre>
+
+      <h4 style="font-size: 14px; color: #38bdf8; margin-top: 14px; margin-bottom: 6px;">Step 2: Connect via UrbanPulse</h4>
+      <ol style="font-size: 12px; color: var(--text-muted); line-height: 1.6; margin-left: 20px;">
+        <li>In UrbanPulse, click <strong>"Connect Micro:bit"</strong> in the top header.</li>
+        <li>Select your <strong>BBC micro:bit</strong> from the browser USB prompt and click <strong>Connect</strong>.</li>
+        <li>The status indicator will switch to <span style="color: #10b981; font-weight: 700;">● BBC micro:bit (USB Live)</span>.</li>
+        <li>Shine a flashlight directly onto the 5x5 LED matrix to trigger real-time heat spikes and watch cascading infrastructure failures!</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Modal: Mathematical Formulations & Algorithmic Specifications -->
+  <div id="modal-formulas-guide" class="modal-overlay">
+    <div class="modal-content" style="max-width: 820px;">
+      <div class="modal-header">
+        <h3 style="font-size: 18px; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <span>📐</span> UrbanPulse Mathematical Formulations &amp; Algorithms
+        </h3>
+        <button id="btn-close-formulas" class="btn btn-secondary" style="padding: 4px 10px;">✕ Close</button>
+      </div>
+
+      <p style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px;">
+        UrbanPulse runs on a mathematically rigorous digital twin core pairing a 2D cellular automata thermodynamics engine with a directed graph dependency model. Below are the 7 core governing equations and their exact JavaScript implementations.
+      </p>
+
+      <!-- 1. Cellular Automata Heat Diffusion -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 178, 172, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #5eead4; margin-bottom: 4px;">1) Spatial Microclimate Canvas: Heat Diffusion (Cellular Automata)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Each tick, a cell's temperature updates based on its own land-use base heat modifier (\(H_{type}\)) and the average of its 4 orthogonal neighbors (up, down, left, right):
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          T_{i,j}^{t+1} = T_{i,j}^t + &alpha; &middot; ( &frac14; &sum; T_{neighbors} - T_{i,j}^t ) + H_{type}
+        </div>
+        <pre class="code-container" style="max-height: 140px; margin: 0;">function updateCellTemperature(currentTemp, neighborTemps, alpha, hType) {
+    let sumNeighbors = neighborTemps.reduce((sum, val) => sum + val, 0);
+    let avgNeighborTemp = sumNeighbors / neighborTemps.length;
+    let nextTemp = currentTemp + alpha * (avgNeighborTemp - currentTemp) + hType;
+    return nextTemp;
+}</pre>
+      </div>
+
+      <!-- 2. Light Sensor Mapping -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #38bdf8; margin-bottom: 4px;">2) IoT Weather Node: Light Sensor Mapping (Micro:bit)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Linear mapping from raw micro:bit light level (0 to 255) to external solar radiation shock factor (\(S\)):
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          S = S_{min} + (raw\_val / 255) &middot; (S_{max} - S_{min})
+        </div>
+        <pre class="code-container" style="max-height: 140px; margin: 0;">function mapLightToSolarShock(rawVal, sMin, sMax) {
+    let clampedVal = Math.max(0, Math.min(255, rawVal));
+    let solarShock = sMin + (clampedVal / 255) * (sMax - sMin);
+    return solarShock;
+}</pre>
+      </div>
+
+      <!-- 3. Cascading Failure Engine -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #f87171; margin-bottom: 4px;">3) Cascading Failure Engine: Threshold Evaluation &amp; Graph Propagation</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Node states evaluated by thermal threshold; failed parents inject immediate downstream stress penalty:
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          State(v) = (T(v) &le; T_{max}(v)) ? "Active" : "Failed"<br>
+          T(v)^{t+1} = T(v)^t + FailurePenalty_u &nbsp;(if State(u) = "Failed")
+        </div>
+        <pre class="code-container" style="max-height: 180px; margin: 0;">function evaluateNodeState(node, currentTemp) {
+    if (currentTemp > node.maxThreshold) {
+        node.state = "Failed";
+    } else {
+        node.state = "Active";
+    }
+    return node.state;
+}
+
+function propagateFailure(parentNode, downstreamNode, failurePenalty) {
+    if (parentNode.state === "Failed") {
+        downstreamNode.temperature += failurePenalty;
+    }
+}</pre>
+      </div>
+
+      <!-- 4. AI Strategic Optimization Solver -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(74, 222, 128, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #4ade80; margin-bottom: 4px;">4) AI Strategic Optimization Solver: Green Canopy Greedy ROI</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Greedy evaluation loops through candidate cells to maximize city-wide thermal drop per unit cost:
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          ROI(c) = &sum; ( T_i^{before} - T_i^{after}(c) ) / Cost(c)
+        </div>
+        <pre class="code-container" style="max-height: 190px; margin: 0;">function evaluateTreePlacementROI(grid, targetCell, treeCost) {
+    let initialTempSum = getCityTotalTemperature(grid);
+    let originalType = targetCell.type;
+    targetCell.type = "Tree Canopy";
+    targetCell.heatMod = -3.0;
+    
+    let newTempSum = getCityTotalTemperature(grid);
+    targetCell.type = originalType;
+    targetCell.heatMod = originalType === "Concrete" ? 3.0 : 0.0;
+    
+    let totalDrop = initialTempSum - newTempSum;
+    let roi = totalDrop / treeCost;
+    return roi;
+}</pre>
+      </div>
+
+      <!-- 5. Economic Downtime Cost Model -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #fbbf24; margin-bottom: 4px;">5) Analytical Telemetry Suite: Economic Downtime Cost Model</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Cumulative economic losses model initial fixed dispatch costs plus compounding damage over outage duration:
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          L(t) = &sum; [ C_{base}(v) + C_{escalation}(v) &middot; t_{down}(v) ]
+        </div>
+        <pre class="code-container" style="max-height: 140px; margin: 0;">function calculateTotalEconomicLoss(failedNodesArray) {
+    let totalLoss = 0;
+    for (let node of failedNodesArray) {
+        let nodeLoss = node.baseCost + (node.escalationCost * node.downTimeMinutes);
+        totalLoss += nodeLoss;
+    }
+    return totalLoss;
+}</pre>
+      </div>
+
+      <!-- 6. Infrastructure Load Model -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 14px;">
+        <h4 style="font-size: 13px; color: #c084fc; margin-bottom: 4px;">6) Infrastructure Load Model: Temperature-Dependent Power Strain</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Ambient heat increases electrical cooling load and conductor resistance:
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          L_{electric}(v) = L_{base}(v) &middot; [ 1 + &gamma; &middot; max(0, T(v) - T_{threshold}) ]
+        </div>
+        <pre class="code-container" style="max-height: 130px; margin: 0;">function calculateElectricLoad(node, currentTemp, gamma, threshold) {
+    let excessHeat = Math.max(0, currentTemp - threshold);
+    let electricLoad = node.baseLoad * (1 + gamma * excessHeat);
+    return electricLoad;
+}</pre>
+      </div>
+
+      <!-- 7. City Resilience Score -->
+      <div style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(56, 178, 172, 0.3); border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+        <h4 style="font-size: 13px; color: #2dd4bf; margin-bottom: 4px;">7) City Resilience Score (Composite Index)</h4>
+        <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 6px;">
+          Composite percentage (0% to 100%) tracking infrastructure survival and thermal moderation:
+        </p>
+        <div style="font-family: var(--font-mono); font-size: 12px; color: #f8fafc; background: rgba(0,0,0,0.4); padding: 6px 10px; border-radius: 4px; margin-bottom: 8px;">
+          Resilience = 100 &middot; ( 1 - Failed / Total ) &middot; [ 1 - max(0, T_{avg} - T_{safe}) / T_{max\_possible} ]
+        </div>
+        <pre class="code-container" style="max-height: 140px; margin: 0;">function calculateResilienceScore(totalNodes, failedCount, avgTemp, safeTemp, maxPossibleTemp) {
+    let nodeSurvivalFactor = 1 - (failedCount / totalNodes);
+    let excessTemp = Math.max(0, avgTemp - safeTemp);
+    let tempPenaltyFactor = 1 - (excessTemp / maxPossibleTemp);
+    let resilience = 100 * nodeSurvivalFactor * tempPenaltyFactor;
+    return Math.max(0, Math.min(100, resilience));
+}</pre>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Module -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
