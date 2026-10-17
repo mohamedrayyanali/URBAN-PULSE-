@@ -1,0 +1,21 @@
+{
+  "name": "urbanpulse",
+  "version": "1.0.0",
+  "description": "An IoT-Driven Spatial Analytics Platform for Modeling Microclimate Dynamics and Cascading Infrastructure Failure Net-Effects",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "microclimate",
+    "urban-heat-island",
+    "cascading-failures",
+    "iot",
+    "microbit",
+    "spatial-analytics",
+    "digital-twin"
+  ],
+  "author": "UrbanPulse Team",
+  "license": "MIT"
+}
