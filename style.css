@@ -1,128 +1,96 @@
+/* ==============================================================================
+   UrbanPulse - Modern High-Tech SCADA / Cyber-Urban Styling System
+   ============================================================================== */
+
+:root {
+  --bg-main: #07090e;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --bg-card-hover: rgba(30, 41, 59, 0.85);
+  --bg-card-subtle: rgba(15, 23, 42, 0.45);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(56, 178, 172, 0.35);
+
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+
+  --accent-cyan: #38b2ac;
+  --accent-teal: #319795;
+  --accent-blue: #3182ce;
+  --accent-green: #38a169;
+  --accent-amber: #d69e2e;
+  --accent-red: #e53e3e;
+  --accent-crimson: #9b2c2c;
+  --accent-purple: #805ad5;
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
 }
 
-.modal-overlay.open {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-main);
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(56, 178, 172, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(229, 62, 62, 0.03) 0%, transparent 40%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
   display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
-.modal-content {
-  background: #0f172a;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  width: 90%;
-  max-width: 680px;
-  max-height: 85vh;
-  overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-  padding: 24px;
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
 }
 
-.modal-header {
+/* ==============================================================================
+   Top Navigation Bar
+   ============================================================================== */
+.top-nav {
+  height: 64px;
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 12px;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.code-container {
-  background: #000;
-  border: 1px solid #1e293b;
-  border-radius: var(--radius-sm);
-  padding: 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: #38bdf8;
-  max-height: 240px;
-  overflow-y: auto;
-  margin: 12px 0;
-  white-space: pre;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* User Manual Table & Modal Styling */
-.manual-table th,
-.manual-table td {
-  border: 1px solid var(--border-color);
-  padding: 8px 12px;
-}
-.manual-table tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-/* Responsive adjustments */
-@media (max-width: 1280px) {
-  .app-layout {
-    grid-template-columns: 280px 1fr 320px;
-    gap: 12px;
-    padding: 12px;
-  }
-}
-
-@media (max-width: 1024px) {
-  .app-layout {
-    grid-template-columns: 1fr;
-    display: flex;
-    flex-direction: column;
-  }
-  .center-column {
-    order: -1;
-  }
-}
-
-/* ==========================================================================
-   UrbanPulse responsive layouts — keep at the END of style.css
-   ========================================================================== */
-html, body { max-width: 100%; }
-.app-layout, .layout-column, .canvas-container-card { min-width: 0; }
-#grid-canvas { display: block; width: 100%; max-width: 560px; height: auto; aspect-ratio: 1 / 1; touch-action: none; }
-#sparkline-canvas { max-width: 100%; }
-
-@media (max-width: 1400px) {
-  .top-nav { height: auto; min-height: 64px; flex-wrap: wrap; gap: 10px; padding: 12px 16px; }
-  .nav-center, .nav-right { flex-wrap: wrap; min-width: 0; }
-  .view-mode-bar, .view-toggles { flex-wrap: wrap; gap: 8px; }
-}
-
-@media (max-width: 1024px) {
-  .top-nav { position: relative; align-items: stretch; flex-direction: column; gap: 12px; }
-  .brand, .nav-center, .nav-right { min-width: 0; width: 100%; }
-  .brand-sub { white-space: normal; overflow-wrap: anywhere; }
-  .nav-center, .nav-right, .sim-controls { display: flex; flex-wrap: wrap; gap: 8px; }
-  .scenario-selector { flex: 1 1 100%; min-width: 0; flex-wrap: wrap; }
-  #scenario-select { max-width: 100%; min-width: 0; flex: 1 1 220px; }
-  .app-layout { display: flex; flex-direction: column; padding: 12px; gap: 14px; }
-  .center-column { order: -1; }
-  .left-column, .center-column, .right-column { width: 100%; max-width: 100%; min-width: 0; }
-  .canvas-container-card { width: 100%; min-height: 0; }
-  .view-mode-bar { gap: 10px; }
-  .view-toggles { width: 100%; }
-  .view-toggle-btn { flex: 1 1 140px; white-space: normal; }
-  .canvas-legend-bar, .network-legend { flex-wrap: wrap; gap: 10px; }
-  .kpi-grid, .palette-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .modal-content { width: calc(100vw - 24px); max-width: calc(100vw - 24px) !important; max-height: 90dvh; overflow: auto; padding: 16px; }
-  .modal-content > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns: 1fr !important; }
-  .manual-table { display: block; max-width: 100%; overflow-x: auto; }
-}
-
-@media (max-width: 480px) {
-  .top-nav { padding: 10px; }
-  .brand-title { font-size: 20px; }
-  .brand-sub { font-size: 10px; }
-  .app-layout { padding: 8px; gap: 10px; }
-  .card { padding: 12px; }
-  .card-header, .modal-header { flex-wrap: wrap; gap: 8px; }
-  .nav-right > button { flex: 1 1 135px; min-width: 0; white-space: normal; }
-  .status-pill { max-width: 100%; white-space: normal; }
-  .view-mode-bar { padding: 10px; }
-  .view-toggle-btn { flex: 1 1 calc(50% - 8px); min-width: 0; font-size: 11px; padding: 8px 6px; }
-  .canvas-container-card { padding: 8px; }
-  .canvas-legend-bar { padding: 0; font-size: 10px; }
-  .thermal-gradient-bar { width: min(36vw, 150px); }
-  .kpi-grid, .palette-grid { gap: 7px; }
-  .kpi-box { min-width: 0; padding: 9px; }
-  .kpi-value { font-size: clamp(15px, 4vw, 20px); overflow-wrap: anywhere; }
-  .kpi-val-row, .iot-header-row, .inspect-header, .inspect-title { flex-wrap: wrap; gap: 6px; }
-  .palette-btn { min-width: 0; padding: 8px; gap: 6px; }
-  .brush-info { min-width: 0; }
-  .brush-sub { overflow-wrap: anywhere; }
-  .log-filter-row { flex-wrap: wrap; }
+.brand-icon {
+  width: 36px;
